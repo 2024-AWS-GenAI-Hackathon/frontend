@@ -25,7 +25,7 @@ category_map = {
 # 컨텐츠
 with st.container():
     st.title('어떤 제품을 홍보하고 싶으신가요?')
-    st.text('고객의 리뷰를 분석해 제품의 장점을 강조한 홍보 문구와 이미지를 제작해 보세요!')
+    st.text('고객의 리뷰를 분석하여, 제품의 장점을 강조한 홍보 문구와 이미지를 제작해 보세요!')
 
 st.write("")
 
@@ -57,38 +57,32 @@ st.write("")
 # 데이터 전송 버튼
 if st.button("데이터 전송하기"):
     if uploaded_image is not None:
-        # 이미지를 Base64로 인코딩
         image_data = uploaded_image.read()
         encoded_image = base64.b64encode(image_data).decode("utf-8")
 
-        # 하드코딩된 게시 기간
         posting_time = "2023-01-01 to 2023-12-31"
 
-        # 서버로 보낼 데이터
         data = {
-            "category": category_map[selected_category_kor],  # 영어로 변환
-            "image": encoded_image,  # Base64 인코딩된 이미지
-            "posting_time": posting_time,  # 하드코딩된 값
+            "category": category_map[selected_category_kor],  
+            "image": encoded_image,
+            "posting_time": posting_time,  
             "additional_requests": additional_requests
         }
 
-        # 서버 요청
+        # 홍보 문구 서버 요청
         response = requests.post(
             "https://k4y2o4tnw8.execute-api.ap-northeast-2.amazonaws.com/dev/input",
             json=data
         )
 
-        # 서버 응답 처리
         if response.status_code == 200:
             st.success("데이터가 성공적으로 전송되었습니다!")
             response_data = response.json()
 
             st.write("")    
 
-            # 응답 안내 문구 추가
             st.markdown("**고객들의 리뷰**를 기반으로 한 인스타그램 **홍보 문구 3가지**를 추천드릴게요 :)")
 
-            # 필요한 데이터 매핑
             first_title = response_data.get("first_title", "제목 없음")
             first_content = response_data.get("first_content", "내용 없음")
             second_title = response_data.get("second_title", "제목 없음")
@@ -96,26 +90,29 @@ if st.button("데이터 전송하기"):
             third_title = response_data.get("third_title", "제목 없음")
             third_content = response_data.get("third_content", "내용 없음")
 
-            # 데이터 출력
-            st.markdown(f"#### {first_title}")
-            st.write(first_content)
+            for i, (title, content) in enumerate([
+                (first_title, first_content),
+                (second_title, second_content),
+                (third_title, third_content)
+            ], start=1):
+                cols = st.columns([6, 1, 1]) 
+                with cols[0]:
+                    st.markdown(f"#### {title}")
+                    st.write(content)
+                with cols[1]:
+                    if st.button(f"확정 {i}"):
+                        st.success(f"'{title}' 문구가 선택되었습니다!")
+                with cols[2]:
+                    if st.button(f"수정 {i}"):
+                        st.warning(f"'{title}' 문구를 수정하려면 별도 수정 기능을 추가해야 합니다.")
 
-            st.markdown(f"#### {second_title}")
-            st.write(second_content)
-
-            st.markdown(f"#### {third_title}")
-            st.write(third_content)
         else:
             st.error("데이터 전송 실패!")
             st.write("상태 코드:", response.status_code)
             st.write("응답 내용:", response.text)
 
 
-
-
-
     else:
         st.warning("이미지를 업로드해주세요.")
 
-# 스타일을 위한 빈 줄
 st.write("")
