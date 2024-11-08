@@ -1,0 +1,33 @@
+.custom-radio {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.custom-radio label {
+  display: inline-block;
+  color: black;
+  border: 1px solid #cbd5e1;
+  border-radius: 50px;
+  padding: 6px 20px;
+  margin: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+  text-align: center;
+}
+.custom-radio label:hover {
+  background-color: #bfdbfe;
+}
+.custom-radio input[type="radio"] {
+  display: none;
+}
+.custom-radio input[type="radio"]:checked + label {
+  background-color: #bfdbfe;
+}
+
+/* 서브 헤더 */
+.subheader-custom {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 0;
+}
