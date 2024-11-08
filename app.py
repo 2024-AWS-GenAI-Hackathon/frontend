@@ -18,37 +18,43 @@ with st.container():
   st.title('어떤 제품을 홍보하고 싶으신가요?')
   st.text('이미지와 키워드를 입력하여, 손쉽게 가게 홍보에 필요한 이미지, 문구, 해시태그를 제작해 보세요!')
 
-# HTML로 선택 버튼 구현
-st.markdown("""
-<div class="custom-radio">
-  <input type="radio" id="social" name="category" value="소셜미디어" checked>
-  <label for="social">소셜미디어</label>
-
-  <input type="radio" id="print" name="category" value="인쇄물">
-  <label for="print">인쇄물</label>
-</div>
-""", unsafe_allow_html=True)
-
-
-  # 이미지 업로드
-st.markdown('<h4 class="subheader-custom">이미지 추가</h4>', unsafe_allow_html=True)
-uploaded_image = st.file_uploader("홍보물에 들어갈 이미지 파일을 업로드해 주세요.")
 st.write("")
 
-# 키워드 입력
-st.markdown('<h3 class="subheader-custom">이미지에 넣을 키워드</h3>', unsafe_allow_html=True)
-keywords = st.text_input("키워드를 입력하세요 (예: 꿀, 가을, 밤)")
-st.write("")
-
-# 리뷰 기간 설정
-st.markdown("""<h3 class="subheader-custom">리뷰 기간 설정</h3>""", unsafe_allow_html=True)
-review_period = st.radio(
-  "원하는 홍보물 생성을 위해 참고할 기간을 선택해 주세요.",
-  ["1주", "2주", "3주", "4주"],
-  horizontal=True
+# 기간 설정
+st.markdown("""<h3 class="subheader-custom">리뷰 카테고리</h3>""", unsafe_allow_html=True)
+review_category = st.radio(
+    "", 
+    ["제품/가격", "분위기", "고객", "기타"],
+    horizontal=True
 )
 
-st.divider()
+st.write("")
+
+# 이미지 업로드
+st.markdown('<h3 class="subheader-custom">홍보물에 들어갈 이미지 추가</h3>', unsafe_allow_html=True)
+uploaded_image = st.file_uploader("", type=["jpg", "png", "jpeg"]) 
+
+st.write("")
+
+# 추가 요청사항
+st.markdown('<h3 class="subheader-custom">추가 요청사항</h3>', unsafe_allow_html=True)
+keywords = st.text_input(
+    label="",  
+    placeholder="ex) 따뜻한 느낌으로 만들어줘"
+)
+
+st.write("")
+
+# 기간 설정
+st.markdown("""<h3 class="subheader-custom">홍보물 제작을 위해 참고할 기간 설정</h3>""", unsafe_allow_html=True)
+review_period = st.radio(
+    "", 
+    ["1주", "2주", "3주", "4주"],
+    horizontal=True
+)
+
+st.write("")
+# st.divider()
 
 # 버튼 구현
 st.markdown("""
