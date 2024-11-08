@@ -50,6 +50,9 @@ review_period = st.radio(
 
 st.divider()
 
-# 문구 생성 버튼
-if st.button("문구 생성하기"):
-  st.success("문구가 성공적으로 생성되었습니다!")
+# 버튼 구현
+st.markdown("""
+<div class="center-button-container">
+    <button class="center-button">문구 먼저 생성하기</button>
+</div>
+""", unsafe_allow_html=True)
