@@ -25,7 +25,7 @@ category_map = {
 # 컨텐츠
 with st.container():
     st.title('어떤 제품을 홍보하고 싶으신가요?')
-    st.text('이미지와 키워드를 입력하여, 손쉽게 가게 홍보에 필요한 이미지, 문구, 해시태그를 제작해 보세요!')
+    st.text('고객의 리뷰를 분석해 제품의 장점을 강조한 홍보 문구와 이미지를 제작해 보세요!')
 
 st.write("")
 
@@ -45,8 +45,8 @@ uploaded_image = st.file_uploader("", type=["jpg", "png", "jpeg"])
 
 st.write("")
 
-# 추가 요청사항
-st.markdown('<h3 class="subheader-custom">추가 요청사항</h3>', unsafe_allow_html=True)
+# 추가 요청사항 
+st.markdown('<h3 class="subheader-custom">추가 요청사항 (옵션)</h3>', unsafe_allow_html=True)
 additional_requests = st.text_input(
     label="",
     placeholder="ex) 인기 항목을 강조해주세요"
@@ -81,11 +81,39 @@ if st.button("데이터 전송하기"):
         # 서버 응답 처리
         if response.status_code == 200:
             st.success("데이터가 성공적으로 전송되었습니다!")
-            st.json(response.json())
+            response_data = response.json()
+
+            st.write("")    
+
+            # 응답 안내 문구 추가
+            st.markdown("**고객들의 리뷰**를 기반으로 한 인스타그램 **홍보 문구 3가지**를 추천드릴게요 :)")
+
+            # 필요한 데이터 매핑
+            first_title = response_data.get("first_title", "제목 없음")
+            first_content = response_data.get("first_content", "내용 없음")
+            second_title = response_data.get("second_title", "제목 없음")
+            second_content = response_data.get("second_content", "내용 없음")
+            third_title = response_data.get("third_title", "제목 없음")
+            third_content = response_data.get("third_content", "내용 없음")
+
+            # 데이터 출력
+            st.markdown(f"#### {first_title}")
+            st.write(first_content)
+
+            st.markdown(f"#### {second_title}")
+            st.write(second_content)
+
+            st.markdown(f"#### {third_title}")
+            st.write(third_content)
         else:
             st.error("데이터 전송 실패!")
             st.write("상태 코드:", response.status_code)
             st.write("응답 내용:", response.text)
+
+
+
+
+
     else:
         st.warning("이미지를 업로드해주세요.")
 
