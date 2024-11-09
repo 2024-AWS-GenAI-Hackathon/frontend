@@ -90,7 +90,40 @@ if st.button("데이터 전송하기"):
 
 st.write("")
 
-# 서버 응답 데이터 처리 및 버튼 액션
+# 최종 문구 저장 함수
+def save_final_text(user_id, final_title, final_content):
+    data = {
+        "user_id": user_id,
+        "final_title": final_title,
+        "final_content": final_content
+    }
+    response = requests.post(
+        "https://l2bwgqe1s9.execute-api.ap-northeast-2.amazonaws.com/default/apps_save_final_text",
+        json=data
+    )
+    if response.status_code == 200:
+        st.success("성공")
+    else:
+        st.error("최종 문구 저장 실패!")
+        st.write("상태 코드:", response.status_code)
+        st.write("응답 내용:", response.text)
+
+# 버튼 클릭 시 호출할 함수
+def confirm_selection(index):
+    response_data = st.session_state["response_data"]
+    if index == 1:
+        final_title = response_data.get("first_title", "제목 없음")
+        final_content = response_data.get("first_content", "내용 없음")
+    elif index == 2:
+        final_title = response_data.get("second_title", "제목 없음")
+        final_content = response_data.get("second_content", "내용 없음")
+    elif index == 3:
+        final_title = response_data.get("third_title", "제목 없음")
+        final_content = response_data.get("third_content", "내용 없음")
+
+    user_id = "123987"
+    save_final_text(user_id, final_title, final_content)
+
 if st.session_state["response_data"]:
     response_data = st.session_state["response_data"]
     
@@ -115,7 +148,7 @@ if st.session_state["response_data"]:
             st.write(content)
         with cols[1]:
             if st.button(f"확정 {i}", key=f"confirm_{i}"):
-                st.success("완료")
+                confirm_selection(i)
         with cols[2]:
             if st.button(f"수정 {i}", key=f"edit_{i}"):
                 st.warning("완료")
