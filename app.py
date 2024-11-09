@@ -24,6 +24,9 @@ category_map = {
 if "response_data" not in st.session_state:
     st.session_state["response_data"] = None
 
+if "editing_content" not in st.session_state:
+    st.session_state["editing_content"] = None
+
 # 컨텐츠
 with st.container():
     st.title('어떤 제품을 홍보하고 싶으신가요?')
@@ -109,21 +112,11 @@ def save_final_text(user_id, final_title, final_content):
         st.write("응답 내용:", response.text)
 
 # 버튼 클릭 시 호출할 함수
-def confirm_selection(index):
-    response_data = st.session_state["response_data"]
-    if index == 1:
-        final_title = response_data.get("first_title", "제목 없음")
-        final_content = response_data.get("first_content", "내용 없음")
-    elif index == 2:
-        final_title = response_data.get("second_title", "제목 없음")
-        final_content = response_data.get("second_content", "내용 없음")
-    elif index == 3:
-        final_title = response_data.get("third_title", "제목 없음")
-        final_content = response_data.get("third_content", "내용 없음")
-
+def confirm_selection(index, title, content):
     user_id = "123987"
-    save_final_text(user_id, final_title, final_content)
+    save_final_text(user_id, title, content)
 
+# 서버 응답 데이터 처리 및 버튼 액션
 if st.session_state["response_data"]:
     response_data = st.session_state["response_data"]
     
@@ -148,7 +141,18 @@ if st.session_state["response_data"]:
             st.write(content)
         with cols[1]:
             if st.button(f"확정 {i}", key=f"confirm_{i}"):
-                confirm_selection(i)
+                confirm_selection(i, title, content)
         with cols[2]:
             if st.button(f"수정 {i}", key=f"edit_{i}"):
-                st.warning("완료")
+                st.session_state["editing_content"] = (title, content)
+
+# 수정된 문구 입력 필드 및 확정 버튼
+if st.session_state["editing_content"]:
+    st.markdown("### 수정된 내용")
+    title, content = st.session_state["editing_content"]
+    edited_title = st.text_input("제목", title)
+    edited_content = st.text_area("내용", content)
+
+    if st.button("수정된 내용 확정"):
+        confirm_selection(None, edited_title, edited_content)
+        st.session_state["editing_content"] = None
