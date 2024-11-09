@@ -27,6 +27,9 @@ if "response_data" not in st.session_state:
 if "editing_content" not in st.session_state:
     st.session_state["editing_content"] = None
 
+if "confirmed_content" not in st.session_state:
+    st.session_state["confirmed_content"] = None
+
 # 컨텐츠
 with st.container():
     st.title('어떤 제품을 홍보하고 싶으신가요?')
@@ -106,6 +109,7 @@ def save_final_text(user_id, final_title, final_content):
     )
     if response.status_code == 200:
         st.success("성공")
+        st.session_state["confirmed_content"] = (final_title, final_content)
     else:
         st.error("최종 문구 저장 실패!")
         st.write("상태 코드:", response.status_code)
@@ -146,7 +150,8 @@ if st.session_state["response_data"]:
             if st.button(f"수정 {i}", key=f"edit_{i}"):
                 st.session_state["editing_content"] = (title, content)
 
-# 수정된 문구 입력 필드 및 확정 버튼
+st.write("")
+
 if st.session_state["editing_content"]:
     st.markdown("### 수정된 내용")
     title, content = st.session_state["editing_content"]
@@ -156,3 +161,10 @@ if st.session_state["editing_content"]:
     if st.button("수정된 내용 확정"):
         confirm_selection(None, edited_title, edited_content)
         st.session_state["editing_content"] = None
+
+# '문구를 기반으로 한 이미지 생성하기' 버튼 생성
+if st.session_state["confirmed_content"]:
+    st.markdown("### 이미지 생성")
+    final_title, final_content = st.session_state["confirmed_content"]
+    if st.button("문구를 기반으로 한 이미지 생성하기"):
+        st.write("이미지 생성 기능은 현재 개발 중입니다.")
