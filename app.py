@@ -8,7 +8,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# CSS 파일 로드
 def load_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -21,6 +20,9 @@ category_map = {
     "고객": "Customer",
     "기타": "Other"
 }
+
+if "response_data" not in st.session_state:
+    st.session_state["response_data"] = None
 
 # 컨텐츠
 with st.container():
@@ -49,10 +51,11 @@ st.write("")
 st.markdown('<h3 class="subheader-custom">추가 요청사항 (옵션)</h3>', unsafe_allow_html=True)
 additional_requests = st.text_input(
     label="",
-    placeholder="ex) 인기 항목을 강조해주세요"
+    placeholder="ex) 따뜻한 느낌으로 만들어줘"
 )
 
 st.write("")
+
 
 # 데이터 전송 버튼
 if st.button("데이터 전송하기"):
@@ -63,9 +66,9 @@ if st.button("데이터 전송하기"):
         posting_time = "2023-01-01 to 2023-12-31"
 
         data = {
-            "category": category_map[selected_category_kor],  
+            "category": category_map[selected_category_kor],
             "image": encoded_image,
-            "posting_time": posting_time,  
+            "posting_time": posting_time,
             "additional_requests": additional_requests
         }
 
@@ -77,42 +80,42 @@ if st.button("데이터 전송하기"):
 
         if response.status_code == 200:
             st.success("데이터가 성공적으로 전송되었습니다!")
-            response_data = response.json()
-
-            st.write("")    
-
-            st.markdown("**고객들의 리뷰**를 기반으로 한 인스타그램 **홍보 문구 3가지**를 추천드릴게요 :)")
-
-            first_title = response_data.get("first_title", "제목 없음")
-            first_content = response_data.get("first_content", "내용 없음")
-            second_title = response_data.get("second_title", "제목 없음")
-            second_content = response_data.get("second_content", "내용 없음")
-            third_title = response_data.get("third_title", "제목 없음")
-            third_content = response_data.get("third_content", "내용 없음")
-
-            for i, (title, content) in enumerate([
-                (first_title, first_content),
-                (second_title, second_content),
-                (third_title, third_content)
-            ], start=1):
-                cols = st.columns([6, 1, 1]) 
-                with cols[0]:
-                    st.markdown(f"#### {title}")
-                    st.write(content)
-                with cols[1]:
-                    if st.button(f"확정 {i}"):
-                        st.success(f"'{title}' 문구가 선택되었습니다!")
-                with cols[2]:
-                    if st.button(f"수정 {i}"):
-                        st.warning(f"'{title}' 문구를 수정하려면 별도 수정 기능을 추가해야 합니다.")
-
+            st.session_state["response_data"] = response.json()  # 응답 데이터를 세션 상태에 저장
         else:
             st.error("데이터 전송 실패!")
             st.write("상태 코드:", response.status_code)
             st.write("응답 내용:", response.text)
-
-
     else:
         st.warning("이미지를 업로드해주세요.")
 
 st.write("")
+
+# 서버 응답 데이터 처리 및 버튼 액션
+if st.session_state["response_data"]:
+    response_data = st.session_state["response_data"]
+    
+    st.markdown("**고객들의 리뷰**를 기반으로 한 인스타그램 **홍보 문구 3가지**를 추천드릴게요 :)")
+
+    first_title = response_data.get("first_title", "제목 없음")
+    first_content = response_data.get("first_content", "내용 없음")
+    second_title = response_data.get("second_title", "제목 없음")
+    second_content = response_data.get("second_content", "내용 없음")
+    third_title = response_data.get("third_title", "제목 없음")
+    third_content = response_data.get("third_content", "내용 없음")
+
+    # 생성된 문구 출력 및 버튼 액션
+    for i, (title, content) in enumerate([
+        (first_title, first_content),
+        (second_title, second_content),
+        (third_title, third_content)
+    ], start=1):
+        cols = st.columns([6, 1, 1])
+        with cols[0]:
+            st.markdown(f"#### {title}")
+            st.write(content)
+        with cols[1]:
+            if st.button(f"확정 {i}", key=f"confirm_{i}"):
+                st.success("완료")
+        with cols[2]:
+            if st.button(f"수정 {i}", key=f"edit_{i}"):
+                st.warning("완료")
