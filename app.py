@@ -1,6 +1,7 @@
 import streamlit as st
 import base64
 import requests
+import uuid 
 
 st.set_page_config(
     page_title="promi",
@@ -41,7 +42,7 @@ st.write("")
 st.markdown("""<h3 class="subheader-custom">리뷰 카테고리</h3>""", unsafe_allow_html=True)
 selected_category_kor = st.radio(
     "",
-    list(category_map.keys()),  # 한글로 표시
+    list(category_map.keys()),  
     horizontal=True
 )
 
@@ -57,7 +58,7 @@ st.write("")
 st.markdown('<h3 class="subheader-custom">추가 요청사항 (옵션)</h3>', unsafe_allow_html=True)
 additional_requests = st.text_input(
     label="",
-    placeholder="ex) 따뜻한 느낌으로 만들어줘"
+    placeholder="ex) 군침도는 느낌으로 만들어줘"
 )
 
 st.write("")
@@ -85,8 +86,7 @@ if st.button("데이터 전송하기"):
         )
 
         if response.status_code == 200:
-            st.success("데이터가 성공적으로 전송되었습니다!")
-            st.session_state["response_data"] = response.json()  # 응답 데이터를 세션 상태에 저장
+            st.session_state["response_data"] = response.json()  
         else:
             st.error("데이터 전송 실패!")
             st.write("상태 코드:", response.status_code)
@@ -108,7 +108,7 @@ def save_final_text(user_id, final_title, final_content):
         json=data
     )
     if response.status_code == 200:
-        st.success("성공")
+        st.success("저장")
         st.session_state["confirmed_content"] = (final_title, final_content)
     else:
         st.error("최종 문구 저장 실패!")
@@ -141,8 +141,8 @@ if st.session_state["response_data"]:
     ], start=1):
         cols = st.columns([6, 1, 1])
         with cols[0]:
-            st.markdown(f"#### {title}")
-            st.write(content)
+            st.write(f"#### {title}")
+            st.markdown(content, unsafe_allow_html=True)
         with cols[1]:
             if st.button(f"확정 {i}", key=f"confirm_{i}"):
                 confirm_selection(i, title, content)
@@ -162,9 +162,42 @@ if st.session_state["editing_content"]:
         confirm_selection(None, edited_title, edited_content)
         st.session_state["editing_content"] = None
 
-# '문구를 기반으로 한 이미지 생성하기' 버튼 생성
+if "random_user_id" not in st.session_state:
+    st.session_state["random_user_id"] = None
+
 if st.session_state["confirmed_content"]:
     st.markdown("### 이미지 생성")
     final_title, final_content = st.session_state["confirmed_content"]
+    
     if st.button("문구를 기반으로 한 이미지 생성하기"):
-        st.write("이미지 생성 기능은 현재 개발 중입니다.")
+        api_url = "https://uexvermiglb4om5aoyac5msvbe0pwdwx.lambda-url.ap-northeast-2.on.aws/"
+
+        user_id = "123987" if st.session_state["random_user_id"] is None else st.session_state["random_user_id"]
+        
+        if st.session_state["random_user_id"] is None:
+            st.session_state["random_user_id"] = str(uuid.uuid4())
+
+        request_data = {
+            "prompt_text": f"{final_title}: {final_content}", 
+            "action": "create",
+            "user_id": user_id
+        }
+
+        response = requests.post(
+            api_url,
+            json=request_data,
+            headers={"Content-Type": "application/json; charset=utf-8"}
+        )
+
+        if response.status_code == 200:
+            response_data = response.json()
+            if "generated_image" in response_data:
+                for idx, image_url in enumerate(response_data["generated_image"]):
+                    st.image(image_url, caption=f"생성된 이미지 {idx + 1}")
+
+            else:
+                st.error("이미지를 가져오지 못했습니다.")
+        else:
+            st.error("이미지 생성 실패!")
+            st.write("상태 코드:", response.status_code)
+            st.write("응답 내용:", response.text)
